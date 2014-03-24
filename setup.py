@@ -10,5 +10,8 @@ setup(
     long_description='',
     author=__author__,
     url='https://github.com/Bettor/bookieodds.git',
-    packages=find_packages()
+    packages=find_packages(),
+    install_requires=[
+        "redis >= 2.9.1",
+    ],
 )
