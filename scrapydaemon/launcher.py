@@ -49,7 +49,6 @@ class BookieoddsLauncher(Launcher):
         e = self.app.getComponent(IEnvironment)
         env = e.get_environment(msg, slot)
         env = stringify_dict(env, keys_only=False)
-        redis_utils.finish_task(self.redis_connecton, self.config, msg['_job'])
         pp = ScrapyProcessProtocol(slot, project, msg['_spider'],
                                    msg['_job'], env)
         pp.deferred.addBoth(self._process_finished, slot)
@@ -61,6 +60,10 @@ class BookieoddsLauncher(Launcher):
         process.end_time = datetime.now()
         self.finished.append(process)
         del self.finished[:-self.finished_to_keep] # keep last 100 finished jobs
+
+        print (">> Task finished!")
+        redis_utils.finish_task(self.redis_connecton, self.config, process.job)
+
         self._wait_for_project(slot)
 
     def _get_max_proc(self, config):
