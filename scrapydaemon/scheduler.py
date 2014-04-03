@@ -26,6 +26,11 @@ class BookieoddsSpiderScheduler(SpiderScheduler):
                                                      'REDIS_PASSWORD', ''))
 
     def schedule(self, project, spider_name, **spider_args):
+        clean_spider_args = self._cleanup_spider_args(spider_args)
+        if redis_utils.is_spider_blocked(self.redis_connecton, spider_name, clean_spider_args):
+            print "Spider %s was blocked, task will not be scheduled" % spider_name
+            return
+
         q = self.queues[project]
         q.add(spider_name, **spider_args)
 
@@ -33,8 +38,7 @@ class BookieoddsSpiderScheduler(SpiderScheduler):
                                   self.config,
                                   job_id=spider_args['_job'],
                                   spider_name=spider_name,
-                                  spider_args=self._cleanup_spider_args(
-                                      spider_args))
+                                  spider_args=clean_spider_args)
 
     def _cleanup_spider_args(self, spider_args):
         """
